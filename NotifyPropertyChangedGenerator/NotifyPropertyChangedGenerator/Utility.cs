@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,7 +13,7 @@ namespace NotifyPropertyChangedGenerator
         {
             var isClassNotify = classDeclaration.AttributeLists
                 .SelectMany(x => x.Attributes)
-                .Any(x => model.GetTypeInfo(x).Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) == "NotifyAttribute");
+                .Any(x => model.GetTypeInfo(x).Type?.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) == "NotifyAttribute");
 
             PropertyDeclarationSyntax[] notifyProperties;
             if (isClassNotify)
