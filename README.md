@@ -14,6 +14,7 @@ What is this?
 * Super lightweight to write INotifyPropertyChanged
 * Keeping code clean in view
 * Being strong in a change
+* POMO(Plain Old MVVM Object), you don't need inherit base class
 
 ![](Img1.jpg)
 
