@@ -178,7 +178,7 @@ public class MyClass : INotifyPropertyChanged
 {
     [Notify]
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
-    [Notify]
+    [NotifyAttribute]
     public int MyProperty2 { get { return myProperty2; } set { SetProperty(ref myProperty2, value, myProperty2PropertyChangedEventArgs); } }
     // NonNotify
     public int MyProperty3 { get; set; }
@@ -240,7 +240,7 @@ public class MyClass : INotifyPropertyChanged
 {
     [Notify]
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
-    [Notify]
+    [NotifyAttribute]
     public int MyProperty2 { get { return myProperty2; } set { SetProperty(ref myProperty2, value, myProperty2PropertyChangedEventArgs); } }
 
     public MyClass()

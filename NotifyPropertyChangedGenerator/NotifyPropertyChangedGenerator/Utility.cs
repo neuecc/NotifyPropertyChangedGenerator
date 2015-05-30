@@ -67,9 +67,11 @@ namespace NotifyPropertyChangedGenerator
                 return t == "INotifyPropertyChanged" || t == "System.ComponentModel.INotifyPropertyChanged";
             }) ?? false))
             {
-                var decl = classDeclaration.AddBaseListTypes(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("System.ComponentModel.INotifyPropertyChanged")))
+                var inpc = SyntaxFactory.ParseTypeName("System.ComponentModel.INotifyPropertyChanged")
                     .WithAdditionalAnnotations(Simplifier.Annotation)
                     .WithAdditionalAnnotations(Formatter.Annotation);
+
+                var decl = classDeclaration.AddBaseListTypes(SyntaxFactory.SimpleBaseType(inpc));
                 return decl.WithIdentifier(decl.Identifier.WithTrailingTrivia());
             }
             else
