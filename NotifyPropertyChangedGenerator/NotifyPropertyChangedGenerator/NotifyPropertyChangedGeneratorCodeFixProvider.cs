@@ -108,20 +108,49 @@ namespace NotifyPropertyChangedGenerator
                 fieldBuilder.AppendLine($"private static readonly PropertyChangedEventArgs {fieldName}PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof({propName}));");
             }
 
+            var comp = classDeclaration.GetCompareMethod();
+
+            const string setPropertyMethodEqualityComparer = @"
+private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+{
+    if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
+    {
+        field = value;
+        PropertyChanged?.Invoke(this, ev);
+    }
+}
+";
+
+            const string setPropertyMethodReferenceEquals = @"
+private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+{
+    if (object.ReferenceEquals(field, value))
+    {
+        field = value;
+        PropertyChanged?.Invoke(this, ev);
+    }
+}
+";
+
+            const string setPropertyMethodNone = @"
+private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+{
+    field = value;
+    PropertyChanged?.Invoke(this, ev);
+}
+";
+
+            var setPropertyMethod =
+                comp == CompareMethod.EqualityComparer ? setPropertyMethodEqualityComparer :
+                comp == CompareMethod.ReferenceEquals ? setPropertyMethodReferenceEquals :
+                setPropertyMethodNone;
+
             var regionSource = $@"
 #region NotifyPropertyChangedGenerator
 
 public event PropertyChangedEventHandler PropertyChanged;
 
-{fieldBuilder.ToString()}
-private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
-{{
-    if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
-    {{
-        field = value;
-        PropertyChanged?.Invoke(this, ev);
-    }}
-}}
+{fieldBuilder.ToString()}{setPropertyMethod}
 
 #endregion";
 

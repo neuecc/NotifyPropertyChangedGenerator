@@ -37,8 +37,9 @@ namespace NotifyPropertyChangedGenerator
             if (a == null) return NamingConvention.Plain;
 
             var s = a.ToString();
-            return s.Contains("LeadingUnderscore") ? NamingConvention.LeadingUnderscore :
-                s.Contains("TrailingUnderscore") ? NamingConvention.TrailingUnderscore :
+            return
+                s.Contains(nameof(NamingConvention.LeadingUnderscore)) ? NamingConvention.LeadingUnderscore :
+                s.Contains(nameof(NamingConvention.TrailingUnderscore)) ? NamingConvention.TrailingUnderscore :
                 NamingConvention.Plain;
         }
 
