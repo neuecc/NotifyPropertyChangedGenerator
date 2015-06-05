@@ -1,0 +1,24 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>NotifyPropertyChangedGenerator.Annotations</id>
+        <version>1.1.0.0</version>
+        <title>NotifyPropertyChangedGenerator.Annotations</title>
+        <authors>neuecc, Nobuyuki Iwanaga</authors>
+        <projectUrl>https://github.com/neuecc/NotifyPropertyChangedGenerator</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Notify annotations which was speparated in dll for NotifyPropertyChangedGenerator.</description>
+        <releaseNotes>Initial release.</releaseNotes>
+        <tags>analyzers INotifyPropertyChanged MVVM</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework="" />
+        </frameworkAssemblies>
+        <dependencies>
+            <dependency id="NotifyPropertyChangedGenerator" version="1.1.0.0" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="NotifyPropertyChangedGenerator.Annotations.dll" target="lib\" />
+        <file src="NotifyPropertyChangedGenerator.Annotations.xml" target="lib\" />
+    </files>
+</package>

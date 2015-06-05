@@ -19,14 +19,14 @@ namespace NotifyPropertyChangedGenerator
             {
                 notifyProperties = (from member in classDeclaration.Members.OfType<PropertyDeclarationSyntax>()
                                     where member.GetNonNotifyAttribute() == null
-                                    select new Property(member, classAttribute: classAttribute)).ToArray();
+                                    select new Property(model, member, classAttribute: classAttribute)).ToArray();
             }
             else
             {
                 notifyProperties = (from member in classDeclaration.Members.OfType<PropertyDeclarationSyntax>()
                                     let attribute = member.GetNotifyAttribute()
                                     where attribute != null
-                                    select new Property(member, attribute)).ToArray();
+                                    select new Property(model, member, attribute)).ToArray();
             }
 
             return notifyProperties;

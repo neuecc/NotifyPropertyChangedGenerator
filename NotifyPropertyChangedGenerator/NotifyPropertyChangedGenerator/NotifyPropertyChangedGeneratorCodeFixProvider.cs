@@ -42,7 +42,7 @@ namespace NotifyPropertyChangedGenerator
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
             var classDeclaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<ClassDeclarationSyntax>().First();
-
+            
             HashSet<MemberDeclarationSyntax> deleteTargets;
             var region = classDeclaration.GetRegion("NotifyPropertyChangedGenerator");
             if (region == null)

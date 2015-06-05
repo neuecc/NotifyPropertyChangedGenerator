@@ -844,5 +844,116 @@ public class MyClass : INotifyPropertyChanged
     #endregion
 }" + Attr);
         }
+
+        [TestMethod]
+        public void LeadingUnserscoreInterface()
+        {
+            var source = @"using System;
+using System.ComponentModel;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+internal sealed class NotifyAttribute : Attribute,
+    // default option, you can customize default naming convention
+    NotifyAttribute.ILeadingUnderscore
+{
+    // naming convention markers
+    internal interface IPlain { }
+    internal interface ILeadingUnderscore { }
+    internal interface ITrailingUnderscore { }
+
+    public NotifyAttribute() { }
+
+    public NotifyAttribute(string namingConvention = null, string compareMethod = null) { }
+}
+
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+internal sealed class NonNotifyAttribute : Attribute
+{
+
+}
+
+[Notify]
+public class MyClass : INotifyPropertyChanged
+{
+    public int MyProperty { get; set; }
+    public int MyProperty2 { get; set; }
+    [NonNotify]
+    public int MyProperty3 { get; set; }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+}
+";
+
+            var fixSource = @"using System;
+using System.ComponentModel;
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+internal sealed class NotifyAttribute : Attribute,
+    // default option, you can customize default naming convention
+    NotifyAttribute.ILeadingUnderscore
+{
+    // naming convention markers
+    internal interface IPlain { }
+    internal interface ILeadingUnderscore { }
+    internal interface ITrailingUnderscore { }
+
+    public NotifyAttribute() { }
+
+    public NotifyAttribute(string namingConvention = null, string compareMethod = null) { }
+}
+
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+internal sealed class NonNotifyAttribute : Attribute
+{
+
+}
+
+[Notify]
+public class MyClass : INotifyPropertyChanged
+{
+    public int MyProperty { get { return _myProperty; } set { SetProperty(ref _myProperty, value, _myPropertyPropertyChangedEventArgs); } }
+    public int MyProperty2 { get { return _myProperty2; } set { SetProperty(ref _myProperty2, value, _myProperty2PropertyChangedEventArgs); } }
+    [NonNotify]
+    public int MyProperty3 { get; set; }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int _myProperty;
+    private static readonly PropertyChangedEventArgs _myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+    private int _myProperty2;
+    private static readonly PropertyChangedEventArgs _myProperty2PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty2));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, ev);
+        }
+    }
+
+    #endregion
+}
+";
+            VerifyCSharpFix(source, fixSource);
+        }
     }
 }

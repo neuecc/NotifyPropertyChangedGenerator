@@ -7,10 +7,9 @@
     {
         /*
            - None: raises `PropertyChanged` at any time when the property set
-    - ReferenceEquals: 
-    - EqualityComparer: uses `EqualityComparer<T>.Default.Equals` to compare
-    old and new values
-    */
+           - ReferenceEquals: 
+           - EqualityComparer: uses `EqualityComparer<T>.Default.Equals` to compare old and new values
+        */
         /// <summary>
         /// Raises `PropertyChanged` at any time when the property set.
         /// </summary>
