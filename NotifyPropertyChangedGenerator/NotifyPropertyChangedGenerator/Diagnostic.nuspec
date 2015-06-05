@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>NotifyPropertyChangedGenerator</id>
-        <version>1.0.0.0</version>
+        <version>1.1.0.0</version>
         <title>NotifyPropertyChangedGenerator</title>
         <authors>neuecc</authors>
         <projectUrl>https://github.com/neuecc/NotifyPropertyChangedGenerator</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Roslyn Analyzer/Generator for avoid boring boilerplate INotifyPropertyChanged implementation.</description>
-        <releaseNotes>Initial release.</releaseNotes>
+        <releaseNotes>Configurable backing field naming conversion rule.</releaseNotes>
         <tags>analyzers INotifyPropertyChanged MVVM</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System" targetFramework="" />

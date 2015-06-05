@@ -8,7 +8,7 @@ namespace $rootnamespace$
     [Conditional("NEVER_USED_AT_RUNTIME")]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     internal sealed class NotifyAttribute : Attribute,
-        // default option, you can customize default naming convention
+        // option, you can customize naming convention rule
         NotifyAttribute.IPlain
     {
         // naming convention markers
@@ -22,11 +22,10 @@ namespace $rootnamespace$
         public NotifyAttribute() { }
 
         /// <summary>
-        /// Specify options as string.
+        /// Specify options.
         /// </summary>
-        /// <param name="namingConvention">Backing field naming : 'Plain' or 'LeadingUnderscore' or 'TrailingUnderscore'</param>
-        /// <param name="compareMethod">Comppare kind for raise property changed : 'None' or 'ReferenceEquals' or 'EqualityComparer'</param>
-        public NotifyAttribute(string namingConvention = null, string compareMethod = null) { }
+        /// <param name="compareMethod">Comppare kind for raise property changed.</param>
+        public NotifyAttribute(NotifyCompareMethod compareMethod) { }
     }
 
     [Conditional("NEVER_USED_AT_RUNTIME")]
@@ -34,5 +33,31 @@ namespace $rootnamespace$
     internal sealed class NonNotifyAttribute : Attribute
     {
 
+    }
+
+    /// <summary>
+    /// Compare method in the generated SetProperty method.
+    /// </summary>
+    internal enum NotifyCompareMethod
+    {
+        /*
+            - None: raises `PropertyChanged` at any time when the property set
+            - ReferenceEquals: 
+            - EqualityComparer: uses `EqualityComparer<T>.Default.Equals` to compare old and new values
+        */
+        /// <summary>
+        /// Raises `PropertyChanged` at any time when the property set.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Uses <see cref="object.ReferenceEquals(object, object)"/> to compare old and new values.
+        /// </summary>
+        ReferenceEquals,
+
+        /// <summary>
+        /// Uses <see cref="System.Collections.Generic.EqualityComparer{T}.Default"/> to compare old and new values.
+        /// </summary>
+        EqualityComparer,
     }
 }

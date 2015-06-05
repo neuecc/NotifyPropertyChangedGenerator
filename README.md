@@ -30,10 +30,39 @@ Press `Ctrl+.`(Lightbulb QuickFix), preview the change.
 
 The modified class is clean, noisy boilerplate codes are lower in the code, not around a property.
 
+Configuration
+---
+Default naming rule of backing field is plain lowerCase. If you want to change _lowerCase, configure `NotifyAttribute.cs`'s interface for example to LeadingUnserscore is here.
+
+```csharp
+[Conditional("NEVER_USED_AT_RUNTIME")]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+internal sealed class NotifyAttribute : Attribute,
+    // option, you can customize naming convention rule
+    NotifyAttribute.ILeadingUnderscore
+{
+    // naming convention markers
+    internal interface IPlain { }
+    internal interface ILeadingUnderscore { }
+    internal interface ITrailingUnderscore { }
+
+    /// <summary>
+    /// No option.
+    /// </summary>
+    public NotifyAttribute() { }
+
+    /// <summary>
+    /// Specify options.
+    /// </summary>
+    /// <param name="compareMethod">Comppare kind for raise property changed.</param>
+    public NotifyAttribute(NotifyCompareMethod compareMethod) { }
+}
+```
+
 What is different with Code Snippet?
 ---
 Code snippet is easy to write but difficult to read. Generated code is very noisy because code snippet does not support that generate to separating.
 
 What is different with PostSharp or Fody?
 ---
-There are easy to write and easy to read but difficult to build and debug. NotifyPropertyChangedGenerator is only simple compile time analyze/generator and fully Visual Studio integrated. 
+There are easy to write and easy to read but difficult to build and debug. NotifyPropertyChangedGenerator is only simple compile time analyze/generator and fully Visual Studio integrated.

@@ -124,7 +124,7 @@ private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
             const string setPropertyMethodReferenceEquals = @"
 private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
 {
-    if (object.ReferenceEquals(field, value))
+    if (!object.ReferenceEquals(field, value))
     {
         field = value;
         PropertyChanged?.Invoke(this, ev);
