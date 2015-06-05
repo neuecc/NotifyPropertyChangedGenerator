@@ -84,11 +84,12 @@ namespace NotifyPropertyChangedGenerator
                 {
                     return x.Declaration.Variables[0].Identifier.ToString();
                 }
-            }).Distinct().ToDictionary(x => x, StringComparer.OrdinalIgnoreCase);
+            }).Select(x => x.TrimStart('_').TrimEnd('_'))
+            .Distinct().ToDictionary(x => x, StringComparer.OrdinalIgnoreCase);
 
             foreach (var item in notifyProperties)
             {
-                if (!idInRegion.ContainsKey(item.Identifier.ToString())) goto REPORT_DIAGNOSTIC;
+                if (!idInRegion.ContainsKey(item.Syntax.Identifier.ToString())) goto REPORT_DIAGNOSTIC;
             }
 
             return; // OK

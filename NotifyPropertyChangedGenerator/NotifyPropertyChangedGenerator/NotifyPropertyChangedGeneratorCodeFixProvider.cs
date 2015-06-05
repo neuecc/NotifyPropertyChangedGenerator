@@ -59,7 +59,7 @@ namespace NotifyPropertyChangedGenerator
                     classDeclaration.Members.Where(x => start <= x.SpanStart && x.SpanStart <= end));
             }
 
-            var notifyProperties = new HashSet<PropertyDeclarationSyntax>(Utility.GetExpandableProperties(classDeclaration, model));
+            var notifyProperties = Utility.GetExpandableProperties(classDeclaration, model).ToDictionary(x => x.Syntax);
 
             var newMemberList = new List<MemberDeclarationSyntax>();
             foreach (var originalMember in classDeclaration.Members)
@@ -73,54 +73,84 @@ namespace NotifyPropertyChangedGenerator
                 {
                     continue;
                 }
-                if (!notifyProperties.Contains(originalMember))
+                var originalProperty = originalMember as PropertyDeclarationSyntax;
+                if (originalProperty == null || !notifyProperties.ContainsKey(originalProperty))
                 {
                     newMemberList.Add(originalMember);
                     continue;
                 }
-                var x = originalMember as PropertyDeclarationSyntax;
-                var modifier = x.Modifiers.First(y =>
+                var modifier = originalProperty.Modifiers.First(y =>
                 {
                     var kind = y.Kind();
                     return (kind == SyntaxKind.PublicKeyword || kind == SyntaxKind.PrivateKeyword || kind == SyntaxKind.ProtectedKeyword || kind == SyntaxKind.InternalKeyword);
                 });
 
-                var propName = x.Identifier.ToString();
-                var fieldName = Char.ToLower(propName[0]) + propName.Substring(1);
+                var p = notifyProperties[originalProperty];
+                var propName = p.PropertyName;
+                var fieldName = p.FieldName;
 
-                var memberTree = CSharpSyntaxTree.ParseText($"{modifier} {x.Type.ToString()} {x.Identifier.ToString()} {{ get {{ return {fieldName}; }} set {{ SetProperty(ref {fieldName}, value, {fieldName}PropertyChangedEventArgs); }} }}\r\n");
+                var memberTree = CSharpSyntaxTree.ParseText($"{modifier} {originalProperty.Type.ToString()} {originalProperty.Identifier.ToString()} {{ get {{ return {fieldName}; }} set {{ SetProperty(ref {fieldName}, value, {fieldName}PropertyChangedEventArgs); }} }}\r\n");
                 var newMember = memberTree.GetRoot().ChildNodes().OfType<PropertyDeclarationSyntax>().First()
-                    .WithAttributeLists(x.AttributeLists)
-                    .WithTriviaFrom(x)
+                    .WithAttributeLists(originalProperty.AttributeLists)
+                    .WithTriviaFrom(originalProperty)
                     .WithAdditionalAnnotations(Formatter.Annotation);
                 newMemberList.Add(newMember);
             }
 
             // Generate Region
             var fieldBuilder = new StringBuilder();
-            foreach (var x in notifyProperties)
+            foreach (var x in notifyProperties.Values)
             {
-                var propName = x.Identifier.ToString();
-                var fieldName = Char.ToLower(propName[0]) + propName.Substring(1);
+                var propName = x.PropertyName;
+                var fieldName = x.FieldName;
 
-                fieldBuilder.AppendLine($"private {x.Type.ToString()} {fieldName};");
+                fieldBuilder.AppendLine($"private {x.Syntax.Type.ToString()} {fieldName};");
                 fieldBuilder.AppendLine($"private static readonly PropertyChangedEventArgs {fieldName}PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof({propName}));");
             }
+
+            var comp = classDeclaration.GetCompareMethod();
+
+            const string setPropertyMethodEqualityComparer = @"
+private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+{
+    if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
+    {
+        field = value;
+        PropertyChanged?.Invoke(this, ev);
+    }
+}
+";
+
+            const string setPropertyMethodReferenceEquals = @"
+private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+{
+    if (object.ReferenceEquals(field, value))
+    {
+        field = value;
+        PropertyChanged?.Invoke(this, ev);
+    }
+}
+";
+
+            const string setPropertyMethodNone = @"
+private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+{
+    field = value;
+    PropertyChanged?.Invoke(this, ev);
+}
+";
+
+            var setPropertyMethod =
+                comp == CompareMethod.EqualityComparer ? setPropertyMethodEqualityComparer :
+                comp == CompareMethod.ReferenceEquals ? setPropertyMethodReferenceEquals :
+                setPropertyMethodNone;
 
             var regionSource = $@"
 #region NotifyPropertyChangedGenerator
 
 public event PropertyChangedEventHandler PropertyChanged;
 
-{fieldBuilder.ToString()}
-private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
-{{
-    if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
-    {{
-        field = value;
-        PropertyChanged?.Invoke(this, ev);
-    }}
-}}
+{fieldBuilder.ToString()}{setPropertyMethod}
 
 #endregion";
 

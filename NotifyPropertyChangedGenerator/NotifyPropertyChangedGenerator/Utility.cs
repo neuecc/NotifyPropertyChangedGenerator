@@ -9,30 +9,24 @@ namespace NotifyPropertyChangedGenerator
 {
     internal static class Utility
     {
-        internal static PropertyDeclarationSyntax[] GetExpandableProperties(ClassDeclarationSyntax classDeclaration, SemanticModel model)
+        internal static Property[] GetExpandableProperties(ClassDeclarationSyntax classDeclaration, SemanticModel model)
         {
-            var isClassNotify = classDeclaration.AttributeLists
-                .SelectMany(x => x.Attributes)
-                .Any(x => model.GetTypeInfo(x).Type?.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) == "NotifyAttribute");
+            var classAttribute = classDeclaration.GetNotifyAttribute();
+            var isClassNotify = classAttribute != null;
 
-            PropertyDeclarationSyntax[] notifyProperties;
+            Property[] notifyProperties;
             if (isClassNotify)
             {
                 notifyProperties = (from member in classDeclaration.Members.OfType<PropertyDeclarationSyntax>()
-                                    where !(from attributeList in member.AttributeLists
-                                            from attribute in attributeList.Attributes
-                                            where model.GetTypeInfo(attribute).Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) == "NonNotifyAttribute"
-                                            select new object())
-                                           .Any()
-                                    select member).ToArray();
+                                    where member.GetNonNotifyAttribute() == null
+                                    select new Property(member, classAttribute: classAttribute)).ToArray();
             }
             else
             {
                 notifyProperties = (from member in classDeclaration.Members.OfType<PropertyDeclarationSyntax>()
-                                    from attributeList in member.AttributeLists
-                                    from attribute in attributeList.Attributes
-                                    where model.GetTypeInfo(attribute).Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) == "NotifyAttribute"
-                                    select member).ToArray();
+                                    let attribute = member.GetNotifyAttribute()
+                                    where attribute != null
+                                    select new Property(member, attribute)).ToArray();
             }
 
             return notifyProperties;

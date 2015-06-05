@@ -14,6 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{A1B7D21B-1
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyPropertyChangedGenerator.Annotations", "NotifyPropertyChangedGenerator.Annotations\NotifyPropertyChangedGenerator.Annotations.csproj", "{75B14C0B-0FE9-4A36-B4E6-BE7C3508497E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyPropertyChangedGenerator.Annotations.Nuget", "NotifyPropertyChangedGenerator.Annotations.Nuget\NotifyPropertyChangedGenerator.Annotations.Nuget.csproj", "{365D9B23-94DD-4853-87DB-82F2D45C7F90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +36,14 @@ Global
 		{6C7EBA08-9DA2-4F57-A136-DAA7B0103993}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C7EBA08-9DA2-4F57-A136-DAA7B0103993}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C7EBA08-9DA2-4F57-A136-DAA7B0103993}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75B14C0B-0FE9-4A36-B4E6-BE7C3508497E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75B14C0B-0FE9-4A36-B4E6-BE7C3508497E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75B14C0B-0FE9-4A36-B4E6-BE7C3508497E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75B14C0B-0FE9-4A36-B4E6-BE7C3508497E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{365D9B23-94DD-4853-87DB-82F2D45C7F90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{365D9B23-94DD-4853-87DB-82F2D45C7F90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{365D9B23-94DD-4853-87DB-82F2D45C7F90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{365D9B23-94DD-4853-87DB-82F2D45C7F90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

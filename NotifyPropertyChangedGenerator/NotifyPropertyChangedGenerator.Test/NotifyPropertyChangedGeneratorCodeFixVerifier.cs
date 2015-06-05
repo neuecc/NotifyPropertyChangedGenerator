@@ -16,16 +16,34 @@ namespace NotifyPropertyChangedGenerator.Test
             Id = NotifyPropertyChangedGeneratorDiagnosticAnalyzer.DiagnosticId,
             Message = String.Format("Notify property is not generated yet."),
             Severity = DiagnosticSeverity.Error,
-            Locations = new[] { new DiagnosticResultLocation("Test0.cs", 16, 1) }
+            Locations = new[] { new DiagnosticResultLocation("Test0.cs", 3, 1) }
         };
 
-        const string Attr = @"using System;
+        const string Usings = @"using System;
 using System.ComponentModel;
+";
+        const string Attr = @"
+
+internal enum NamingConvention
+{
+    Plain,
+    LeadingUnderscore,
+    TrailingUnderscore,
+}
+
+internal enum CompareMethod
+{
+    None,
+    ReferenceEquals,
+    EqualityComparer,
+}
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 internal sealed class NotifyAttribute : Attribute
 {
-
+    public NotifyAttribute() { }
+    public NotifyAttribute(string namingConvention = null, string compareMethod = null) { }
+    public NotifyAttribute(NamingConvention namingConvention = default(NamingConvention), CompareMethod compareMethod = default(CompareMethod)) { }
 }
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
@@ -33,7 +51,6 @@ internal sealed class NonNotifyAttribute : Attribute
 {
 
 }
-
 ";
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
@@ -49,7 +66,7 @@ internal sealed class NonNotifyAttribute : Attribute
         [TestMethod]
         public void SuccessForPropertyDecr()
         {
-            VerifyCSharpDiagnostic(Attr + @"public class MyClass : INotifyPropertyChanged
+            VerifyCSharpDiagnostic(Usings + @"public class MyClass : INotifyPropertyChanged
 {
     [Notify]
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -86,13 +103,13 @@ internal sealed class NonNotifyAttribute : Attribute
     }
 
     #endregion
-}");
+}" + Attr);
         }
 
         [TestMethod]
         public void SuccessForClassDecr()
         {
-            VerifyCSharpDiagnostic(Attr + @"[Notify]
+            VerifyCSharpDiagnostic(Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -128,13 +145,13 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}");
+}" + Attr);
         }
 
         [TestMethod]
         public void DoesNotHaveInterface()
         {
-            var source = Attr + @"public class MyClass
+            var source = Usings + @"public class MyClass
 {
     [Notify]
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -171,10 +188,10 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}";
+}" + Attr;
 
             VerifyCSharpDiagnostic(source, Expected);
-            VerifyCSharpFix(source, Attr + @"public class MyClass : INotifyPropertyChanged
+            VerifyCSharpFix(source, Usings + @"public class MyClass : INotifyPropertyChanged
 {
     [Notify]
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -211,14 +228,14 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}");
+}" + Attr);
 
         }
 
         [TestMethod]
         public void StandardPattern()
         {
-            var source = Attr + @"public class MyClass
+            var source = Usings + @"public class MyClass
 {
     [Notify]
     public int MyProperty { get; set; }
@@ -233,10 +250,10 @@ public class MyClass : INotifyPropertyChanged
     public void Method()
     {
     }
-}";
+}" + Attr;
 
             VerifyCSharpDiagnostic(source, Expected);
-            VerifyCSharpFix(source, Attr + @"public class MyClass : INotifyPropertyChanged
+            VerifyCSharpFix(source, Usings + @"public class MyClass : INotifyPropertyChanged
 {
     [Notify]
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -271,13 +288,13 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}");
+}" + Attr);
         }
 
         [TestMethod]
         public void StandardPatternClass()
         {
-            var source = Attr + @"[Notify]
+            var source = Usings + @"[Notify]
 public class MyClass
 {
     public int MyProperty { get; set; }
@@ -291,10 +308,10 @@ public class MyClass
     public void Method()
     {
     }
-}";
+}" + Attr;
 
             VerifyCSharpDiagnostic(source, Expected);
-            VerifyCSharpFix(source, Attr + @"[Notify]
+            VerifyCSharpFix(source, Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -328,13 +345,13 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}");
+}" + Attr);
         }
 
         [TestMethod]
         public void AddNewProperty()
         {
-            var source = Attr + @"[Notify]
+            var source = Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -373,10 +390,10 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}";
+}" + Attr;
 
             VerifyCSharpDiagnostic(source, Expected);
-            VerifyCSharpFix(source, Attr + @"[Notify]
+            VerifyCSharpFix(source, Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -417,13 +434,13 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}");
+}" + Attr);
         }
 
         [TestMethod]
         public void HiddenRegion()
         {
-            var source = Attr + @"[Notify]
+            var source = Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -458,7 +475,7 @@ public class MyClass : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, ev);
         }
     }
-}";
+}" + Attr;
 
             VerifyCSharpDiagnostic(source, Expected);
         }
@@ -466,7 +483,7 @@ public class MyClass : INotifyPropertyChanged
         [TestMethod]
         public void BrokenRegion()
         {
-            var source = Attr + @"[Notify]
+            var source = Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -505,10 +522,10 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}";
+}" + Attr;
 
             VerifyCSharpDiagnostic(source, Expected);
-            VerifyCSharpFix(source, Attr + @"[Notify]
+            VerifyCSharpFix(source, Usings + @"[Notify]
 public class MyClass : INotifyPropertyChanged
 {
     public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
@@ -549,7 +566,283 @@ public class MyClass : INotifyPropertyChanged
     }
 
     #endregion
-}");
+}" + Attr);
+        }
+
+        [TestMethod]
+        public void NamingConvention()
+        {
+            var source = Usings + @"public class MyClass
+{
+    [Notify]
+    public int MyProperty { get; set; }
+    [Notify(""LeadingUnderscore"")]
+    public int MyProperty1 { get; set; }
+    [NotifyAttribute(""TrailingUnderscore"")]
+    public int MyProperty2 { get; set; }
+    [Notify(NamingConvention.LeadingUnderscore)]
+    public int MyProperty3 { get; set; }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+}" + Attr;
+
+            VerifyCSharpDiagnostic(source, Expected);
+            VerifyCSharpFix(source, Usings + @"public class MyClass : INotifyPropertyChanged
+{
+    [Notify]
+    public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
+    [Notify(""LeadingUnderscore"")]
+    public int MyProperty1 { get { return _myProperty1; } set { SetProperty(ref _myProperty1, value, _myProperty1PropertyChangedEventArgs); } }
+    [NotifyAttribute(""TrailingUnderscore"")]
+    public int MyProperty2 { get { return myProperty2_; } set { SetProperty(ref myProperty2_, value, myProperty2_PropertyChangedEventArgs); } }
+    [Notify(NamingConvention.LeadingUnderscore)]
+    public int MyProperty3 { get { return _myProperty3; } set { SetProperty(ref _myProperty3, value, _myProperty3PropertyChangedEventArgs); } }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int myProperty;
+    private static readonly PropertyChangedEventArgs myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+    private int _myProperty1;
+    private static readonly PropertyChangedEventArgs _myProperty1PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty1));
+    private int myProperty2_;
+    private static readonly PropertyChangedEventArgs myProperty2_PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty2));
+    private int _myProperty3;
+    private static readonly PropertyChangedEventArgs _myProperty3PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty3));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, ev);
+        }
+    }
+
+    #endregion
+}" + Attr);
+        }
+
+        [TestMethod]
+        public void NamingConventionByClassAttribute()
+        {
+            var source = Usings + @"[Notify(""LeadingUnderscore"")]
+public class MyClass
+{
+    [Notify]
+    public int MyProperty { get; set; }
+    [NonNotify]
+    public int MyProperty1 { get; set; }
+    [NotifyAttribute(""TrailingUnderscore"")]
+    public int MyProperty2 { get; set; }
+    public int MyProperty3 { get; set; }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+}" + Attr;
+
+            VerifyCSharpDiagnostic(source, Expected);
+            VerifyCSharpFix(source, Usings + @"[Notify(""LeadingUnderscore"")]
+public class MyClass : INotifyPropertyChanged
+{
+    [Notify]
+    public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
+    [NonNotify]
+    public int MyProperty1 { get; set; }
+    [NotifyAttribute(""TrailingUnderscore"")]
+    public int MyProperty2 { get { return myProperty2_; } set { SetProperty(ref myProperty2_, value, myProperty2_PropertyChangedEventArgs); } }
+    public int MyProperty3 { get { return _myProperty3; } set { SetProperty(ref _myProperty3, value, _myProperty3PropertyChangedEventArgs); } }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int myProperty;
+    private static readonly PropertyChangedEventArgs myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+    private int myProperty2_;
+    private static readonly PropertyChangedEventArgs myProperty2_PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty2));
+    private int _myProperty3;
+    private static readonly PropertyChangedEventArgs _myProperty3PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty3));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, ev);
+        }
+    }
+
+    #endregion
+}" + Attr);
+        }
+
+        [TestMethod]
+        public void CompareMethodReferenceEquals()
+        {
+            var source = Usings + @"[Notify(""ReferenceEquals"")]
+public class MyClass
+{
+    public int MyProperty { get; set; }
+}" + Attr;
+
+            VerifyCSharpDiagnostic(source, Expected);
+            VerifyCSharpFix(source, Usings + @"[Notify(""ReferenceEquals"")]
+public class MyClass : INotifyPropertyChanged
+{
+    public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int myProperty;
+    private static readonly PropertyChangedEventArgs myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        if (object.ReferenceEquals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, ev);
+        }
+    }
+
+    #endregion
+}" + Attr);
+        }
+
+        [TestMethod]
+        public void CompareMethodNone()
+        {
+            var source = Usings + @"[Notify(""None"")]
+public class MyClass
+{
+    public int MyProperty { get; set; }
+}" + Attr;
+
+            VerifyCSharpDiagnostic(source, Expected);
+            VerifyCSharpFix(source, Usings + @"[Notify(""None"")]
+public class MyClass : INotifyPropertyChanged
+{
+    public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int myProperty;
+    private static readonly PropertyChangedEventArgs myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        field = value;
+        PropertyChanged?.Invoke(this, ev);
+    }
+
+    #endregion
+}" + Attr);
+        }
+
+        [TestMethod]
+        public void NamingConventionAndCompareMethod()
+        {
+            var source = Usings + @"[Notify(NamingConvention.LeadingUnderscore, CompareMethod.ReferenceEquals)]
+public class MyClass
+{
+    [Notify]
+    public int MyProperty { get; set; }
+    [NonNotify]
+    public int MyProperty1 { get; set; }
+    [NotifyAttribute(""TrailingUnderscore"")]
+    public int MyProperty2 { get; set; }
+    public int MyProperty3 { get; set; }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+}" + Attr;
+
+            VerifyCSharpDiagnostic(source, Expected);
+            VerifyCSharpFix(source, Usings + @"[Notify(NamingConvention.LeadingUnderscore, CompareMethod.ReferenceEquals)]
+public class MyClass : INotifyPropertyChanged
+{
+    [Notify]
+    public int MyProperty { get { return myProperty; } set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
+    [NonNotify]
+    public int MyProperty1 { get; set; }
+    [NotifyAttribute(""TrailingUnderscore"")]
+    public int MyProperty2 { get { return myProperty2_; } set { SetProperty(ref myProperty2_, value, myProperty2_PropertyChangedEventArgs); } }
+    public int MyProperty3 { get { return _myProperty3; } set { SetProperty(ref _myProperty3, value, _myProperty3PropertyChangedEventArgs); } }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int myProperty;
+    private static readonly PropertyChangedEventArgs myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+    private int myProperty2_;
+    private static readonly PropertyChangedEventArgs myProperty2_PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty2));
+    private int _myProperty3;
+    private static readonly PropertyChangedEventArgs _myProperty3PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty3));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        if (object.ReferenceEquals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, ev);
+        }
+    }
+
+    #endregion
+}" + Attr);
         }
     }
 }
