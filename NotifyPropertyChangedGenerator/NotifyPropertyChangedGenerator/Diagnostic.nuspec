@@ -2,20 +2,17 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>NotifyPropertyChangedGenerator</id>
-        <version>1.1.0.0</version>
+        <version>1.1.0.1</version>
         <title>NotifyPropertyChangedGenerator</title>
         <authors>neuecc</authors>
         <projectUrl>https://github.com/neuecc/NotifyPropertyChangedGenerator</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Roslyn Analyzer/Generator for avoid boring boilerplate INotifyPropertyChanged implementation.</description>
-        <releaseNotes>Configurable backing field naming conversion rule.</releaseNotes>
+        <releaseNotes>Update for Visual Studio 2015 RTM.</releaseNotes>
         <tags>analyzers INotifyPropertyChanged MVVM</tags>
-        <frameworkAssemblies>
-            <frameworkAssembly assemblyName="System" targetFramework="" />
-        </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="*.dll" target="tools\analyzers\" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*" />
+        <file src="*.dll" target="analyzers\dotnet\cs" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />
         <file src="tools\*.ps1" target="tools\" />
         <file src="NotifyAttribute.cs.pp" target="Content\" />
     </files>
