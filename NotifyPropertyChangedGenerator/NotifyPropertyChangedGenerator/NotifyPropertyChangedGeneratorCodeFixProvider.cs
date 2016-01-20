@@ -89,7 +89,11 @@ namespace NotifyPropertyChangedGenerator
                 var propName = p.PropertyName;
                 var fieldName = p.FieldName;
 
-                var memberTree = CSharpSyntaxTree.ParseText($"{modifier} {originalProperty.Type.ToString()} {originalProperty.Identifier.ToString()} {{ get {{ return {fieldName}; }} set {{ SetProperty(ref {fieldName}, value, {fieldName}PropertyChangedEventArgs); }} }}\r\n");
+                // Check the access level of the set accessor.
+                var setAccessor = originalProperty.AccessorList.Accessors.SingleOrDefault(accessor => accessor.IsKind(SyntaxKind.SetAccessorDeclaration));
+                var setAccessorAccessLevel = (setAccessor?.Modifiers.Any(modifier_ => modifier_.IsKind(SyntaxKind.PrivateKeyword)) ?? true) ? "private " : "";
+
+                var memberTree = CSharpSyntaxTree.ParseText($"{modifier} {originalProperty.Type.ToString()} {originalProperty.Identifier.ToString()} {{ get {{ return {fieldName}; }} {setAccessorAccessLevel}set {{ SetProperty(ref {fieldName}, value, {fieldName}PropertyChangedEventArgs); }} }}\r\n");
                 var newMember = memberTree.GetRoot().ChildNodes().OfType<PropertyDeclarationSyntax>().First()
                     .WithAttributeLists(originalProperty.AttributeLists)
                     .WithTriviaFrom(originalProperty)
