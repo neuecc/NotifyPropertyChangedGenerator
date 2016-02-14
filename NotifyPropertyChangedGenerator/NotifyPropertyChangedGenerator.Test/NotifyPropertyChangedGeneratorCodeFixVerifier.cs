@@ -349,6 +349,67 @@ public class MyClass : INotifyPropertyChanged
         }
 
         [TestMethod]
+        public void PrivateSetterPatternClass()
+        {
+            var source = Usings + @"[Notify]
+public class MyClass
+{
+    public int MyProperty { get; private set; }
+    public int MyProperty2 { get; set; }
+    public int MyProperty3 { get; }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+}" + Attr;
+
+            VerifyCSharpDiagnostic(source, Expected);
+            VerifyCSharpFix(source, Usings + @"[Notify]
+public class MyClass : INotifyPropertyChanged
+{
+    public int MyProperty { get { return myProperty; } private set { SetProperty(ref myProperty, value, myPropertyPropertyChangedEventArgs); } }
+    public int MyProperty2 { get { return myProperty2; } set { SetProperty(ref myProperty2, value, myProperty2PropertyChangedEventArgs); } }
+    public int MyProperty3 { get { return myProperty3; } private set { SetProperty(ref myProperty3, value, myProperty3PropertyChangedEventArgs); } }
+
+    public MyClass()
+    {
+
+    }
+
+    public void Method()
+    {
+    }
+
+    #region NotifyPropertyChangedGenerator
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private int myProperty;
+    private static readonly PropertyChangedEventArgs myPropertyPropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty));
+    private int myProperty2;
+    private static readonly PropertyChangedEventArgs myProperty2PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty2));
+    private int myProperty3;
+    private static readonly PropertyChangedEventArgs myProperty3PropertyChangedEventArgs = new PropertyChangedEventArgs(nameof(MyProperty3));
+
+    private void SetProperty<T>(ref T field, T value, PropertyChangedEventArgs ev)
+    {
+        if (!System.Collections.Generic.EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, ev);
+        }
+    }
+
+    #endregion
+}" + Attr);
+        }
+
+        [TestMethod]
         public void AddNewProperty()
         {
             var source = Usings + @"[Notify]
